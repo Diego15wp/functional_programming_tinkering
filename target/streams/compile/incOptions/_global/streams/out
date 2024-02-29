@@ -1,0 +1,21 @@
+[0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = /Users/dpil/Downloads/cs_work/fn_scala/as_2/csci_493_students_24186921/target/scala-2.11/classes.bak[0m
+[0m[[0m[0mdebug[0m] [0m[0mAbout to delete class files:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$go$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$2.class[0m
+[0m[[0m[0mdebug[0m] [0m[0mWe backup class files:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$go$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$2.class[0m
+[0m[[0m[0mdebug[0m] [0m[0mRegistering generated classes:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$3.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$go$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	BernoulliTrials$$anonfun$2.class[0m
+[0m[[0m[0mdebug[0m] [0m[0mRemoving the temporary directory used for backing up class files: /Users/dpil/Downloads/cs_work/fn_scala/as_2/csci_493_students_24186921/target/scala-2.11/classes.bak[0m

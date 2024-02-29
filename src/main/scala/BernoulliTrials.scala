@@ -21,10 +21,31 @@ object BernoulliTrials {
     pw.close()
   }
 
-  def conductAllTrials(r: Random, numTrials: Int, fewestFlips: Int, mostFlips: Int): RESULTS_2D = ???
+  def conductAllTrials(r: Random, numTrials: Int, fewestFlips: Int, mostFlips: Int): RESULTS_2D = {
+    val data = (fewestFlips to mostFlips).foldLeft(List.empty[REAL_RESULT])({case (ls: List[REAL_RESULT], x) => (x.toDouble, averageMaxStreakLength(r, numTrials, x))::ls})
+    val ans = data.reverse
+    ans
+  }
 
-  def averageMaxStreakLength(r: Random, numTrials: Int, flipsPerTrial: Int): Double = ???
+  def averageMaxStreakLength(r: Random, numTrials: Int, flipsPerTrial: Int): Double = {
+    val avg = (1 to numTrials).foldLeft((0.0,0.0))({case ((tot: Double, amount: Double), x) => ((tot+ longestStreak(r, flipsPerTrial), amount+1))})
+    avg._1/ avg._2
+  }
 
-  def longestStreak(r: Random, numFlips: Int): Int = ???
+  def longestStreak(r: Random, numFlips: Int): Int = {
+
+    def update(streak: Int,longest: Int): (Int, Int) = {
+      //True Evaluates to heads, every True adds to streak
+      if(r.nextBoolean) (streak+1, longest)
+      else {(0, streak.max(longest))}   //else reset streak and pick max of streak or longest
+    }
+
+    val tup = (1 to numFlips).foldLeft((0,0))({case ((streak:Int, longest: Int), x)=> update(streak, longest) })
+    tup._2
+
+
+
+
+  }
 
 }

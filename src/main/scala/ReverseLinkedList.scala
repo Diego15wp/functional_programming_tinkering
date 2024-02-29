@@ -1,3 +1,4 @@
+import scala.annotation.tailrec
 
 class ListNode(_x: Int, _next: ListNode = null){
   val x = _x
@@ -23,8 +24,38 @@ object ReverseLinkedList {
     view(head)
   }
 
-  def reverseListImperative(head: ListNode): ListNode = ???
+  def reverseListImperative(head: ListNode): ListNode = {
+    var iter = head // functions parameters are immutable so copy of head made into var
+    var prev:ListNode = null //reverse list will point to null
 
-  def reverseListFunctional(head: ListNode): ListNode = ???
+    //loop that ends when no more nexts in list
+    while(iter != null){
+      //swap prev with next
+      var swapper = iter.next
+      iter.next = prev
+      prev = swapper
+
+      //update iterator and prev for next loop
+      swapper = iter
+      iter = prev
+      prev = swapper
+    }
+    //return final ListNode
+    prev
+  }
+
+  def reverseListFunctional(head: ListNode): ListNode = {
+
+    @annotation.tailrec
+    def go(prevNode: ListNode, currNode:ListNode): ListNode = {
+      if(currNode  == null){prevNode}   //if curr is null end of original list reached
+      else{
+        val newNode: ListNode = currNode.next //temp value for original list order
+        currNode.next = prevNode  //update next to previous
+        go(currNode, newNode)   //recursive call to next reversal pair
+      }
+    }
+    go(null, head)
+  }
 
 }

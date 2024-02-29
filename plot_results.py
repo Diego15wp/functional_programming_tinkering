@@ -4,6 +4,7 @@ import math
 import sys
 
 g = [ln.rstrip('\n').split(',') for ln in open(sys.argv[1])]
+##note to self: sys.argv[1] is for commanlind arguments-> feed csv file after file call
 x = [float(e[0]) for e in g]
 y = [float(e[1]) for e in g]
 

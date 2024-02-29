@@ -1,0 +1,7 @@
+[0m[[0m[31merror[0m] [0m[0m/Users/dpil/Downloads/cs_work/fn_scala/as_2/csci_493_students_24186921/src/main/scala/BernoulliTrials.scala:25:157: type mismatch;[0m
+[0m[[0m[31merror[0m] [0m[0m found   : (Int, Double)[0m
+[0m[[0m[31merror[0m] [0m[0m required: BernoulliTrials.REAL_RESULT[0m
+[0m[[0m[31merror[0m] [0m[0m    (which expands to)  (Double, Double)[0m
+[0m[[0m[31merror[0m] [0m[0m    val data = (fewestFlips to mostFlips).foldLeft(List.empty[REAL_RESULT])({case (ls: List[REAL_RESULT], x) => (x, averageMaxStreakLength(r, numTrials, x))::ls})[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                                                                                                            ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m

@@ -11,7 +11,11 @@ object Multiples3Or5 {
     println(s"sum for n = 1000, ${getMultiplesFlatMap(1000)}")
   }
 
-  def getMultiples(high: Int): Int = ???
+  def getMultiples(high: Int): Int = {
+    (1 to high- 1).foldLeft(0)({case (z, x) => if(x % 3 == 0 || x % 5 == 0) z + x else z })
+  }
 
-  def getMultiplesFlatMap(high: Int): Int = ???
+  def getMultiplesFlatMap(high: Int): Int = {
+    (1 to high-1).toList.flatMap(x => if(x % 3 == 0 || x % 5 == 0)List(x) else List()).reduce((x,y)=> x+y)
+  }
 }
