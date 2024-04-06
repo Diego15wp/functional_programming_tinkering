@@ -1,55 +1,95 @@
 import scala.util.Random
 import SieveEratosthenes.allPrimes
 import ReverseLinkedList.{viewList, reverseListFunctional}
-import Multiples3OR5.getMultiples
+import Multiples3Or5.getMultiples
 import BernoulliTrials.{conductAllTrials, RESULTS_2D}
 
 object Assignment3 {
 
   // Task 1. lambda expression for PI approximation
   // i.
-  val pi_approximation: Seq[(Double,Double)] => Double = ???
-
+  val pi_approximation :Seq[(Double,Double)] => Double = (sq: Seq[(Double, Double)]) => ((4 * sq.count(x=> Math.sqrt(x._1*x._1 + x._2*x._2) < 1)).toDouble / sq.size)
+    //val siz = sq.size
+    //val second = sq.filter(x=> Math.sqrt(x._1*x._1 + x._2*x._2) < 1)
+    //(4 * sq.filter(x=> Math.sqrt(x._1*x._1 + x._2*x._2) < 1).size) / sq.size
   // ii.
-  val values: Random => Int => Seq[(Double,Double)] = ???
+  val values: Random => Int => Seq[(Double,Double)] = (r:Random) => (num:Int) => (1 to num).toList.map(x => (r.nextDouble(),r.nextDouble()))
+
 
   // 2. approximate PI using a stream of values, wrapped in an option
   // i.
-  val streamed_values: Random => Stream[(Double,Double)] = ???
+  val streamed_values: Random => Stream[(Double,Double)] = (r:Random) => {def f(rand: Random):Stream[(Double,Double)] = (rand.nextDouble(),rand.nextDouble)#::f(rand);f(r)}
 
   // ii.
-  def pi_approximation_option(v: Seq[(Double,Double)])(n: Int): Option[Double] = ???
+  def pi_approximation_option(v: Seq[(Double,Double)])(n: Int): Option[Double] = {
+    try Some(4* v.take(n).toList.count(x=> Math.sqrt(x._1*x._1 + x._2*x._2) < 1).toDouble / n)
+    catch{case e:Exception => None}
+
+  }
 
   // 3. Lifting assignment 2 items
-  def lift[A,B](f: A => B): Option[A] => Option[B] = ???
+  def lift[A,B](f: A => B): Option[A] => Option[B] = _ map f
 
   // i.
   // Sieve of Eratosthenes
-  val allPrimesOption: Option[Int] => Option[List[Int]] = ???
+  val allPrimesOption: Option[Int] => Option[List[Int]] = lift(allPrimes)
 
   // Reverse Linked List
-  val reverseListOption: Option[ListNode] => Option[ListNode] = ???
+  val reverseListOption: Option[ListNode] => Option[ListNode] = lift(reverseListFunctional)
 
   // Multiples of 3 or 5
-  val getMultiplesOption: Option[Int] => Option[Int] = ???
+  val getMultiplesOption: Option[Int] => Option[Int] = lift(getMultiples)
 
   // ii.
   // Bernoulli trials
-  val conductAllTrialsOption: (Option[Random],Option[Int],Option[Int],Option[Int]) => Option[RESULTS_2D] = ???
+  val conductAllTrialsOption: (Option[Random],Option[Int],Option[Int],Option[Int]) => Option[RESULTS_2D] =(a:Option[Random],b:Option[Int], c:Option[Int], d:Option[Int]) => (a,b,c,d) match {
+    case (( Some(w),Some(x),Some(y),Some(z))) => Some(conductAllTrials(w,x,y,z))
+    case _ => None;}
 
   // 4. Corecursion applied to recurrence relations
   // i. factorials
-  val factorials: Stream[Int] = ???
+  val factorials: Stream[Int] = {
+    def f(i:Int, h:Int):Stream[Int] = {
+      i#::f((h+1)*i, (h+1));
+    }
+    f(1,0);
+  }
+
   // ii. Fibonacci numbers: t_1 = 1, t_2 = 1, t_n = t_n-1 + t_n-2
-  val fibs: Stream[Int] = ???
+  val fibs: Stream[Int] = {
+    def f(f0: Int, f1: Int): Stream[Int] = {
+      f0#::f(f1,f0+f1)
+    }
+    f(1,1)
+  }
+
   // iii. a third order recurrence relation: t_1 = 2, t_2 = 3, t_3 = 5, t_n = 2 * t_n-1 + 7 * t_n-2 + 9 * t_n-3
-  val t: Stream[Int] = ???
+  val t: Stream[Int] = {
+    def f(f0: Int, f1:Int, f2:Int):Stream[Int] ={
+      val rec = (x:Int, y:Int, z:Int)=> (2*x+7*y+9*z)
+      val first = rec(f2,f1,f0)
+      val second = rec(first, f2, f1)
+      val third = rec(second, first, f2)
+      f0#::f1#::f2#::f(first, second, third)
+    }
+    f(2, 3, 5)
+  }
 
   // iv.
   // define using corecursion an infinite stream of positive integers starting with 2, i.e. [2,3,4,5,6,7,...]
-  val naturals: Stream[Int] = ???
+  val naturals: Stream[Int] = {
+    def f(x:Int):Stream[Int] = {
+      x #:: f(x+1)
+    }
+    f(2)
+  }
   // define using corecursion an infinite stream of primes numbers starting with 2, i.e. [2,3,5,7,11,13,17,19,11,13,17,...]
-  val primes: Stream[Int] = ???
+  val primes: Stream[Int] = {
+    def  f(a: Stream[Int]):Stream[Int]= {
+      a.head #:: f(a.tail.filter(x=> x % a.head  != 0 ))
+    }
+    f(naturals)
+  }
 
   // 5. Error handling using flatMap chaining with Either
   trait MiscellaneousError
@@ -57,17 +97,31 @@ object Assignment3 {
   object TypeConversionError extends MiscellaneousError
   object UndefinedSlopeError extends MiscellaneousError
   val m: Map[String,Tuple4[String,String,String,String]] = Map(
-    "slope one" -> ("0.0","0.0","1.0","1.0"), 
-    "slope zero" -> ("1.0","1.0","2.0","1.0"), 
+    "slope one" -> ("0.0","0.0","1.0","1.0"),
+    "slope zero" -> ("1.0","1.0","2.0","1.0"),
     "undefined slope" -> ("2.0","2.0","2.0","3.0"),
     "bad values" -> ("foo","bar","baz","biz")
   )
-  val findValues: String => Either[MiscellaneousError,Tuple4[String,String,String,String]] = ???
+  val findValues: String => Either[MiscellaneousError,Tuple4[String,String,String,String]] = (s:String) => {
+    try {Right(m(s))}
+    catch{
+      case (e:Exception)=> Left(ItemNotFoundError)
+    }
+  }
 
-  val convertValues: Tuple4[String,String,String,String] => Either[MiscellaneousError,Tuple4[Double,Double,Double,Double]] = ???
+  val convertValues: Tuple4[String,String,String,String] => Either[MiscellaneousError,Tuple4[Double,Double,Double,Double]] = (x:Tuple4[String, String, String, String]) =>{
+    try{Right((x._1.toDouble,x._2.toDouble,x._3.toDouble,x._4.toDouble))}
+    catch{
+      case e:Exception => Left(TypeConversionError)
+    }
+  }
 
-  val slope: Tuple4[Double,Double,Double,Double] => Either[MiscellaneousError,Double] = ???
-   
+  val slope: Tuple4[Double,Double,Double,Double] => Either[MiscellaneousError,Double] = (x:Tuple4[Double, Double, Double, Double]) =>{
+    if(x._1 == x._3) Left(UndefinedSlopeError)
+    else Right((x._4- x._2)/ (x._3 - x._1))
+
+  }
+
   // DO NOT MODIFY THE FUNCTION BELOW
   def go = {
     println("Assignment 3")
@@ -93,7 +147,7 @@ object Assignment3 {
       .map(viewList)
     println(s"Reversing linked list using lifted function: ${res2}")
     println("Multiples of 3 or 5")
-    println(s"Sum for n = 10, ${Multiples3OR5.getMultiples(10)}")
+    println(s"Sum for n = 10, ${Multiples3Or5.getMultiples(10)}")
     println(s"Using lifted function, sum for n = 10: ${getMultiplesOption(Some(10))}")
     println("Bernoulli Trials")
     val res3 = BernoulliTrials.conductAllTrials(Random, 10, 10, 100)
