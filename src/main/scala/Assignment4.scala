@@ -18,7 +18,32 @@ object Assignment4 {
 
   // For task 2
   trait VerseItem {
-    def <+>(that: VerseItem): VerseItem = ???
+    def <+>(that: VerseItem): VerseItem = {
+
+      //helper function for stanza + Verse
+      def sandv(s: Option[Stanza], ver:Verse): Stanza = {
+        s match {
+          case None => Stanza(ver,None)
+          case Some(s_rec) => Stanza(s_rec.verse, Some(sandv(s_rec.next, ver)))
+        }
+      }
+      //helper function for stanza + stanza
+      def sands(s1: Stanza, s2: Option[Stanza]): Stanza = {
+        s1 match {
+          case Stanza(v, None) => Stanza(v, s2)
+          case Stanza(v, Some(next)) => Stanza(v, Some(sands(next, s2)))
+        }
+      }
+      //Matching different orders of datatypes that can be given to the operator
+      //Returns Stanza or Fragment
+      (this, that) match{
+        case (v: Verse, s: Stanza) => Stanza(v, Some(s))
+        case (v: Verse, v2: Verse) => Stanza(v, Some(Stanza(v2,None)))
+        case (s: Stanza, v: Verse) => sandv(Some(s),v)
+        case (s: Stanza, s2: Stanza) => sands(s, Some(s2))
+        case (a:VerseItem, b:VerseItem) => Fragment(List(a,b))
+      }
+    }
   }
 
   // Note that Stanza and Fragment are intended for completion of task 2.
@@ -53,24 +78,50 @@ object Assignment4 {
       implicit def tok(s: String) = token(P.string(s))
 
       // For task 1
-      def verse: Parser[VerseItem] = ???
-      def nounPhrase: Parser[VerseItem] = ???
-      def verbPhrase: Parser[VerseItem] = ???
-      def prepPhrase: Parser[VerseItem] = ???
-      def complexNoun: Parser[VerseItem] = ???
-      def complexVerb: Parser[VerseItem] = ???
+      //Verse-> NounPhrase VerbPhrase
+      def verse: Parser[VerseItem] = (nounPhrase ** verbPhrase).map(v => Verse(v._1, v._2)) scope("Verse")
+
+      //NounPhrase-> ComplexNoun | ComplexNoun PrepositionalPhrase
+      //VerbPhrase -> ComplexVerb | ComplexVerb PrepositionalPhrase
+      //use of attempt on ** combinators first, so that characters can be uncommited if the grammar doesnt match
+      def nounPhrase: Parser[VerseItem] = attempt(complexNoun**prepPhrase).map(v => NounPhrase(v._1, Some(v._2))) | (complexNoun).map(v => NounPhrase(v, None))  scope("Noun Phrase")
+      def verbPhrase: Parser[VerseItem] = attempt(complexVerb**prepPhrase).map(v => VerbPhrase(v._1, Some(v._2))) | (complexVerb).map(v => VerbPhrase(v, None))  scope("Verb Phrase")
+      //PrepositionalPhrase -> Preposition ComplexNoun
+      def prepPhrase: Parser[VerseItem] = (preposition ** complexNoun).map(v=> PrepPhrase(v._1, v._2)) scope ("prep Phrase")
+
+      //ComplexNoun-> Article Noun
+      def complexNoun: Parser[VerseItem] = (article**noun).map(v => ComplexNoun(v._1, v._2)) scope("Complex Noun")
+      // ComplexVerb -> Verb | Verb NounPhrase
+      def complexVerb: Parser[VerseItem] = attempt(verb ** (nounPhrase)).map(v => ComplexVerb(v._1,Some(v._2))) | verb.map(v=> ComplexVerb(v, None)) scope("Complex Verb")
       // This yields either ArticleA or ArticleThe when it 
       // encounters those respective strings
-      def article: Parser[VerseItem] = ??? 
+      def article: Parser[VerseItem] = scope("articles"){
+        "a".as(ArticleA) |
+          "the".as(ArticleThe)
+      }
       // This yields either NounGirl, NounBoy, or NounFlower 
       // when it encounters those respective strings
-      def noun: Parser[VerseItem] = ???
+      def noun: Parser[VerseItem] = scope("nouns"){
+        "boy".as(NounBoy) |
+          "girl".as(NounGirl) |
+          ("flower".as(NounFlower))
+      }
       // This yields either VerbTouches, VerbLikes, VerbSees, or VerbMoves 
       // when it encounters those respective strings
-      def verb: Parser[VerseItem] = ???
+      def verb: Parser[VerseItem] = scope("verbs"){
+        ("touches").as(VerbTouches) |
+          ("likes").as(VerbLikes) |
+          ("sees").as(VerbSees) |
+          ("moves".as(VerbMoves))
+      }
       // This yields either PrepWith or PrepFor when it encounters
       // those respective strings
-      def preposition: Parser[VerseItem] = ???
+      def preposition: Parser[VerseItem] = scope("preps"){
+        ("with").as(PrepWith) |
+          ("for".as(PrepFor))
+
+      }
+      //def value: Parser[VerseItem] = preposition | verb | noun
       // This acts like the starting symbol in the grammar
       root(verse) 
     }
@@ -100,7 +151,31 @@ object Assignment4 {
   // For a given string and for a given grammar (given as a Map[Char,Seq[String]]) 
   // yield a lazy list of all sentential forms arising from the string by applying
   // productions from the given grammar.
-  val allSententialForms: (String,Map[Char,Seq[String]]) => Stream[String] = ???
+  val allSententialForms: (String,Map[Char,Seq[String]]) => Stream[String] = (a: String, mp: Map[Char,Seq[String]]) => {
+
+    //Head of Stream is current Seq
+    //Tail of stream will call traverse to Seq and provide all children node Sentential forms of the current Seq
+    def f(s:Seq[String]): Stream[String] = {
+      val next = s.flatMap(str => traverse(str))
+      s.toStream #::: f(next)
+    }
+
+    //function to return Seq of resulting Sentential forms of a given string
+    def traverse(s: String):Seq[String] = {
+      //filter out odd num positions, since those positions are typically held by operator
+      //these positions are used to provide k for aPA function for strings
+      //check cases where there is no mapping for a single variable in the map ie. (E), a, b
+      (0 to s.length-1).filter(x => x % 2 ==0)
+        .flatMap(num =>
+          if (s(num) == '(') applyProductionAt(s,num,List("(E)"))
+          else if(s(num) == ')') applyProductionAt(s,num,List())
+          else if(s(num) == 'a') applyProductionAt(s,num,List("a"))
+          else if(s(num) == 'b') applyProductionAt(s,num,List("b"))
+            else applyProductionAt(s, num , mp(s(num))))
+    }
+    //instantiate stream
+    f(List("E"))
+  }
 
   /* Please leave this function unaltered, so that as I evaluate everyone's 
    * submissions, I see the code you've written invoked under the same conditions.
@@ -144,5 +219,6 @@ object Assignment4 {
     val n = 20
     val selectedSententialForms = allSententialForms("E",ae).take(n).toList
     println(s"First ${n} sentential forms: ${selectedSententialForms}")
+
   }
 }
