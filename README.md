@@ -1,5 +1,5 @@
-#Functional Programming Tinkering in Scala
-Building Foundational Knowledge on:
+# Functional Programming Tinkering in Scala
+## Building Foundational Knowledge on:
  -  referential transparency
  -  pure functions
  -  functors
